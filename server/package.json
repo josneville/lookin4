@@ -1,0 +1,17 @@
+{
+  "name": "lookin4_server",
+  "version": "1.0.0",
+  "description": "Lookin4 Server",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Neville Jos",
+  "license": "ISC",
+  "dependencies": {
+    "express": "*",
+	"morgan": "*",
+	"body-parser": "*",
+	"mongoose": "*"
+  }
+}

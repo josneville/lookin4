@@ -1,0 +1,38 @@
+<ion-view view-title="Nearby Gigs" ng-controller="FeedCtrl">
+  <div id="check-page" ng-show="showCheck()">
+  	<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="90.594px" height="59.714px" viewBox="0 0 90.594 59.714" enable-background="new 0 0 90.594 59.714" xml:space="preserve">
+    	<polyline id="check" fill="none" stroke="#006837" stroke-width="5" stroke-miterlimit="10" points="1.768,23.532 34.415,56.179 88.826,1.768"/>
+    </svg>
+   	<h4>Your interest has been notified</h4>
+  </div>
+	<ion-content>
+    <ion-refresher pulling-text="Pull to refresh..." on-refresh="getFeed()"></ion-refresher>
+    <label class="item item-input">
+      <i class="icon ion-search placeholder-icon"></i>
+      <input type="search" placeholder="Search" ng-model="query">
+    </label>
+    <div class="list card" ng-repeat="gig in feed | filter: query | reverse">
+      <div class="item header" ng-click="getDescription(gig.description)">
+        <div>
+          <h2>Lookin4: {{gig.position}}</h2>
+          <p>Rate: ${{gig.rate}}</p>
+          <p>Date: {{gig.date|toDateString}}</p>
+          <p>Requested by: {{gig.name}}</p>
+        </div>
+        <div>
+          <img ng-src="http://graph.facebook.com/{{gig.userid}}/picture?width=270&height=270" />
+        </div>
+      </div>
+      <div class="header">
+				<a class="item item-icon-left assertive" style="color: #EF4739; width: 50%; border: 0;" href="#" ng-click="notInterested(gig._id)">
+          <i class="icon ion-close assertive"></i>
+          Out
+        </a>
+        <a class="item item-icon-left" style="width: 50%; border: 0;" ng-click="interested(gig._id)">
+          <i class="icon ion-checkmark"></i>
+          In
+        </a>
+      </div>
+    </div>
+	</ion-content>
+</ion-view>

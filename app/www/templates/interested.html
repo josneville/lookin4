@@ -1,0 +1,18 @@
+<ion-view view-title="Interested People" ng-controller="InterestedCtrl">
+    <ion-content>
+      <ion-refresher pulling-text="Pull to refresh..." on-refresh="getInterested()"></ion-refresher>
+      <div class="list card" ng-repeat="user in interested">
+        <div class="item header">
+          <div style="width: 75%">
+            <h2>Name: {{user.name}}</h2>
+            <p>Email: {{user.email}}</p>
+            <p>Phone Number: {{user.phone}}</p>
+            <p>Caption: {{user.caption}}</p>
+          </div>
+          <div style="width: 25%">
+            <img style="float: right; width: 100%; height: 100%;" ng-src="http://graph.facebook.com/{{user.userid}}/picture?width=270&height=270"/>
+          </div>
+        </div>
+      </div>
+    </ion-content>
+</ion-view>

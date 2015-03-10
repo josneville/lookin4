@@ -1,0 +1,26 @@
+<ion-view view-title="Post Gig" ng-controller="NewGigCtrl">
+  <ion-content>
+    <div class="list">
+      <label class="item item-input">
+        <span class="input-label">Lookin4</span>
+        <input type="text" ng-model="currentNewGig.position" style="background-color: white">
+      </label>
+      <label class="item item-input">
+        <span class="input-label">Description</span>
+        <input type="text" ng-model="currentNewGig.description" style="background-color: white" placeholder="Hi, I'm looking for a {{currentNewGig.position}}">
+      </label>
+      <label class="item item-input">
+        <span class="input-label">Rate</span>
+        <h2>$</h2>
+        <input type="number" ng-model="currentNewGig.rate" style="background-color: white">
+      </label>
+      <label class="item item-input">
+        <span class="input-label">Date</span>
+        <input type="date" ng-model="currentNewGig.date" style="background-color: white">
+      </label>
+      <button class="button button-block button-balanced" ng-click="postGig()" style="width: 90%; margin-left: 5%;">
+        Look 4
+      </button>
+    </div>
+  </ion-content>
+</ion-view>

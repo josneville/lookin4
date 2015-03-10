@@ -1,0 +1,19 @@
+<ion-view view-title="My Gigs" ng-controller="MyGigsCtrl">
+    <ion-content>
+    <ion-refresher pulling-text="Pull to refresh..." on-refresh="getPersonal()"></ion-refresher>
+      <div>
+        <div class="list card mine" ng-repeat="gig in personal | reverse">
+          <div class="item header header-click" ng-click="findInterested(gig._id, gig.interested.length)">
+            <div>
+              <h2>Lookin4: {{gig.position}}</h2>
+              <p>Rate: ${{gig.rate}}</p>
+              <p>Date: {{gig.date|toDateString}}</p>
+              <p>Requested by: {{gig.name}}</p>
+              <p>Description: {{gig.description}}</p>
+              <p>Number Interested: {{gig.interested.length}}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ion-content>
+</ion-view>
