@@ -39,7 +39,8 @@ var gigSchema = new Schema({
 	date: {type: Date, required: true},
   description: {type: String, required: true},
   interested: {type: Array, default: []},
-	notInterested: {type: Array, default: []}
+	notInterested: {type: Array, default: []},
+  hidden: {type: Boolean, default: true}
 }, {versionKey:false});
 
 var userSchema = new Schema({
@@ -110,12 +111,13 @@ app.post('/api/gigs/feed', function(req, res){
       {$match: {userid: {$ne: postID}, interested: {$nin: [postID]}, notInterested: {$nin: [postID]}}},
       {$project: {
         _id: 1,
-		userid: 1,
+		    userid: 1,
         name: 1,
         position: 1,
         rate: 1,
         date: 1,
-        description: 1
+        description: 1,
+        hidden: 1
       }}
     ], function(err, gigs){
       if (err) {
@@ -172,6 +174,19 @@ app.post('/api/gigs/new', function(req, res){
     }
     res.status(200).send("Sucess");
   })
+});
+
+app.post('/api/gigs/update', function(req, res){
+  var postID = req.body.userID;
+  var postHidden = req.body.hidden;
+  Gig.update({userid: postID}, {hidden: postHidden}, {}, function(err, numUpdated){
+    if (err){
+      console.log(err);
+      res.status(400).send("Fail");
+      return;
+    }
+    res.status(200).send("Success");
+  });
 });
 
 app.post('/api/gigs/interested', function(req, res){
