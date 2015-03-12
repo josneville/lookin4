@@ -44,6 +44,13 @@ angular.module('lookin4.factory', [])
         method: "POST",
         data: {transactionID: transactionid}
       })
+    },
+    update: function(userid, hidden) {
+      return $http({
+        url: base + "/update",
+        method: "POST",
+        data: {userID: userid, hidden: hidden},
+      })
     }
   }
 })
