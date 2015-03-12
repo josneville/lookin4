@@ -24,13 +24,13 @@ angular.module('lookin4.factory', [])
         data: {userID: userid, name: name, date: date, position: position, rate: rate, description: description},
       })
     },
-		interested: function(userid, transactionid){
-			return $http({
-				url: base + "/interested",
-				method: "POST",
-				data: {userID: userid, transactionID: transactionid}
-			})
-		},
+    interested: function(userid, transactionid){
+      return $http({
+        url: base + "/interested",
+        method: "POST",
+        data: {userID: userid, transactionID: transactionid}
+      })
+    },
     notInterested: function(userid, transactionid){
       return $http({
         url: base + "/notInterested",
@@ -43,6 +43,13 @@ angular.module('lookin4.factory', [])
         url: base + "/getInterested",
         method: "POST",
         data: {transactionID: transactionid}
+      })
+    },
+    update: function(userid, hidden) {
+      return $http({
+        url: base + "/update",
+        method: "POST",
+        data: {userID: userid, hidden: hidden},
       })
     }
   }
