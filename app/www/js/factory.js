@@ -10,6 +10,13 @@ angular.module('lookin4.factory', [])
         data: {userID: userID}
       })
     },
+    all: function(userID){
+      return $http({
+        url: base + "/allfeed",
+        method: "POST",
+        data: {userID: userID}
+      })
+    },
     personal: function(userID){
       return $http({
         url: base + "/personal",
@@ -24,13 +31,13 @@ angular.module('lookin4.factory', [])
         data: {userID: userid, name: name, date: date, position: position, rate: rate, description: description},
       })
     },
-    interested: function(userid, transactionid){
-      return $http({
-        url: base + "/interested",
-        method: "POST",
-        data: {userID: userid, transactionID: transactionid}
-      })
-    },
+		interested: function(userid, transactionid){
+			return $http({
+				url: base + "/interested",
+				method: "POST",
+				data: {userID: userid, transactionID: transactionid}
+			})
+		},
     notInterested: function(userid, transactionid){
       return $http({
         url: base + "/notInterested",
@@ -45,11 +52,18 @@ angular.module('lookin4.factory', [])
         data: {transactionID: transactionid}
       })
     },
-    update: function(userid, hidden) {
+    update: function(_id, hidden) {
       return $http({
         url: base + "/update",
         method: "POST",
-        data: {userID: userid, hidden: hidden},
+        data: {_id: _id, hidden: hidden}
+      })
+    },
+    flagged: function(_id, hidden, flagged, userFlaggedReason) {
+      return $http({
+        url: base + "/flagged",
+        method: "POST",
+        data: {_id: _id, hidden: hidden, flagged: flagged, $push: {flaggedReason: userFlaggedReason}}
       })
     }
   }

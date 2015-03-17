@@ -146,22 +146,6 @@
   flex-direction: column;
 }
 
-h2{
-  font-size: 5vw !important;
-}
-
-p{
-  font-size: 3vw !important;
-}
-
-.item{
-  font-size: 5vw !important;
-}
-
-.item a{
-  font-size: 5vw !important;
-}
-
 #check-page svg, h4{
   opacity: 1
 }

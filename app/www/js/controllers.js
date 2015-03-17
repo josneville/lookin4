@@ -41,6 +41,7 @@ angular.module('lookin4.controllers', [])
 
 .controller('FeedCtrl', function($scope, $ionicPopup, GigAPI, UserAPI){
   $scope.check = false;
+  $scope.userFlaggedReason = ' ';
   $scope.showCheck = function(){return $scope.check};
   $scope.interested = function(tID){
 		GigAPI.interested($scope.user.id, tID)
@@ -68,13 +69,88 @@ angular.module('lookin4.controllers', [])
         $scope.getFeed();
       });
   }
-  $scope.getDescription = function(d){
-    var alertPopup = $ionicPopup.alert({
+  $scope.getDescription = function(description, tID, hidden, flagged){
+    
+
+      //$scope.data = {}
+
+    var confirmPopup  = $ionicPopup.confirm({
+       title: 'Description',
+       template: description,
+       okText: 'Report' // String (default: 'OK'). The text of the OK button.
+      });
+    confirmPopup.then(function(res) {
+     if(res) {
+      $scope.flagGig(tID, hidden, flagged);
+       //console.log('You are sure');
+
+     } else {
+       //console.log('You are not sure');
+     }
+    });
+        
+    /**var alertPopup = $ionicPopup.alert({
        title: 'Description',
        template: d
      });
-     alertPopup.then();
+     alertPopup.then();**/
+
   }
+
+    $scope.flagGig = function(tID, hidden, flagged){
+        $scope.data = {}
+
+    var flagPopup = $ionicPopup.show({
+       title: 'Flag and report Gig',
+       template: '<input type="text" ng-model="data.userFlaggedReason">',
+       subTitle: 'Please explain why',
+       scope: $scope,
+       buttons: [
+       { text: 'Cancel' },
+       {
+        text: '<b>Report</b>',
+        type: 'button-positive',
+        onTap: function(e) {
+        
+
+        if (!$scope.data.userFlaggedReason) {
+            //user entered nothing
+            return ' ';
+            //e.preventDefault(); //prevent user from closing dialog
+          } else {
+            return $scope.data.userFlaggedReason;
+          }
+
+
+        }
+      }
+    ]
+  });
+
+        flagPopup.then(function(res) { 
+            if(typeof res === 'undefined')
+               return; 
+             console.log(res);
+            GigAPI.flagged(tID, hidden, flagged, "res")
+            .success(function(data, status, headers, config){
+                var alertPopup = $ionicPopup.alert({
+                  title: 'Gig reported'
+                });
+                //remove from user feed immediately
+                $scope.notInterested(tID);
+
+            })
+            .error(function(data, status, headers, config){
+              var alertPopup = $ionicPopup.alert({
+                title: 'Mistyped information'
+              });
+            });
+
+          });
+
+
+  }
+  
 	openFB.getLoginStatus(function(loginStatus){
     if (loginStatus.status !== 'connected'){
       $location.path('/login');
