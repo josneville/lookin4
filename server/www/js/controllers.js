@@ -1,28 +1,41 @@
 angular.module('lookin4.controllers', [])
 
-.controller('LoginCtrl', function($scope, $location, $rootScope) {
-  $scope.fbLogin = function() {
-      openFB.login(
-          function(response) {
-              if (response.status === 'connected') {
-                  console.log(response);
-                  $scope.$apply(function() {
-                    $location.path('/app/search');
-                  });
-              } else {
-                  $scope.$apply(function(){
-                    $location.path('/login');
-                  });
-              }
-          },
-          {scope: 'email'});
-  }
-  openFB.getLoginStatus(function(loginStatus){
-    console.log(loginStatus);
-    if (loginStatus.status === 'connected'){
-      $location.path('/app/search');
+.controller('LoginCtrl', function($scope, $ionicPopup, $location, $rootScope) {
+    $scope.fbLogin = function() {
+        $scope.popUpRes = false;
+        var confirmPopup = $ionicPopup.confirm({
+            title: 'Facebook',
+            template: 'Lookin4 will receive the following info: your name and email address.'
+        });
+        confirmPopup.then(function(res) {
+            if (res) {
+                openFB.login(
+                    function(response) {
+                        if (response.status === 'connected') {
+                            console.log(response);
+                            $scope.$apply(function() {
+                                $location.path('/app/search');
+                            });
+                        } else {
+                            $scope.$apply(function() {
+                                $location.path('/login');
+                            });
+                        }
+                    }, {
+                        scope: 'email'
+                    });
+            } else {
+                console.log("don't show login page");
+            }
+        });
+
+        openFB.getLoginStatus(function(loginStatus) {
+            console.log(loginStatus);
+            if (loginStatus.status === 'connected') {
+                $location.path('/app/search');
+            }
+        })
     }
-  })
 })
 
 .controller('MainCtrl', function($scope, $location, $rootScope, GigAPI, UserAPI){
@@ -39,151 +52,130 @@ angular.module('lookin4.controllers', [])
   }
 })
 
-.controller('FeedCtrl', function($scope, $ionicPopup, GigAPI, UserAPI){
-  $scope.check = false;
-  $scope.userFlaggedReason = ' ';
-  $scope.showCheck = function(){return $scope.check};
-  $scope.interested = function(tID){
-		GigAPI.interested($scope.user.id, tID)
-			.success(function(data, status, headers, config){
-				$scope.check = true;
-    		setTimeout(
-      		function(){
-        		$('#check').css('stroke-dashoffset', 0);
-      		}
-    		, 1);
-				$scope.getFeed();
-    		setTimeout(
-      		function(){
-        		$('#check').css('stroke-dashoffset', 130);
-        		$scope.$apply(function() {
-            	$scope.check = false;
-        		});
-      		}
-    		, 2000);
-			})
-  }
-  $scope.notInterested = function(tID){
-    GigAPI.notInterested($scope.user.id, tID)
-      .success(function(data, status, headers, config){
-        $scope.getFeed();
-      });
-  }
-  $scope.getDescription = function(description, tID, hidden, flagged){
-    
+.controller('FeedCtrl', function($scope, $ionicPopup, GigAPI, UserAPI) {
+    $scope.check = false;
+    $scope.userFlaggedReason = ' ';
+    $scope.showCheck = function() {
+        return $scope.check
+    };
+    $scope.interested = function(tID) {
+        GigAPI.interested($scope.user.id, tID)
+            .success(function(data, status, headers, config) {
+                $scope.check = true;
+                setTimeout(
+                    function() {
+                        $('#check').css('stroke-dashoffset', 0);
+                    }, 1);
+                $scope.getFeed();
+                setTimeout(
+                    function() {
+                        $('#check').css('stroke-dashoffset', 130);
+                        $scope.$apply(function() {
+                            $scope.check = false;
+                        });
+                    }, 2000);
+            })
+    }
+    $scope.notInterested = function(tID) {
+        GigAPI.notInterested($scope.user.id, tID)
+            .success(function(data, status, headers, config) {
+                $scope.getFeed();
+            });
+    }
+    $scope.getDescription = function(description, tID, hidden, flagged) {
+        var confirmPopup = $ionicPopup.confirm({
+            title: 'Description',
+            template: description,
+            okText: 'Report' // String (default: 'OK'). The text of the OK button.
+        });
+        confirmPopup.then(function(res) {
+            if (res) {
+                $scope.flagGig(tID, hidden, flagged);
+            }
+        });
+    }
 
-      //$scope.data = {}
-
-    var confirmPopup  = $ionicPopup.confirm({
-       title: 'Description',
-       template: description,
-       okText: 'Report' // String (default: 'OK'). The text of the OK button.
-      });
-    confirmPopup.then(function(res) {
-     if(res) {
-      $scope.flagGig(tID, hidden, flagged);
-       //console.log('You are sure');
-
-     } else {
-       //console.log('You are not sure');
-     }
-    });
-        
-    /**var alertPopup = $ionicPopup.alert({
-       title: 'Description',
-       template: d
-     });
-     alertPopup.then();**/
-
-  }
-
-    $scope.flagGig = function(tID, hidden, flagged){
+    $scope.flagGig = function(tID, hidden, flagged) {
         $scope.data = {}
 
-    var flagPopup = $ionicPopup.show({
-       title: 'Flag and report Gig',
-       template: '<input type="text" ng-model="data.userFlaggedReason">',
-       subTitle: 'Please explain why',
-       scope: $scope,
-       buttons: [
-       { text: 'Cancel' },
-       {
-        text: '<b>Report</b>',
-        type: 'button-positive',
-        onTap: function(e) {
-        
+        var flagPopup = $ionicPopup.show({
+            title: 'Flag and report Gig',
+            template: '<input type="text" ng-model="data.userFlaggedReason">',
+            subTitle: 'Please explain why',
+            scope: $scope,
+            buttons: [{
+                text: 'Cancel'
+            }, {
+                text: '<b>Report</b>',
+                type: 'button-positive',
+                onTap: function(e) {
 
-        if (!$scope.data.userFlaggedReason) {
-            //user entered nothing
-            return ' ';
-            //e.preventDefault(); //prevent user from closing dialog
-          } else {
-            return $scope.data.userFlaggedReason;
-          }
+                    if (!$scope.data.userFlaggedReason) {
+                        return ' ';
+                    } else {
+                        return $scope.data.userFlaggedReason;
+                    }
 
 
-        }
-      }
-    ]
-  });
+                }
+            }]
+        });
 
-        flagPopup.then(function(res) { 
-            if(typeof res === 'undefined')
-               return; 
-             console.log(res);
+        flagPopup.then(function(res) {
+            if (typeof res === 'undefined')
+                return;
+            console.log(res);
             GigAPI.flagged(tID, hidden, flagged, "res")
-            .success(function(data, status, headers, config){
-                var alertPopup = $ionicPopup.alert({
-                  title: 'Gig reported'
+                .success(function(data, status, headers, config) {
+                    var alertPopup = $ionicPopup.alert({
+                        title: 'Gig reported'
+                    });
+                    $scope.notInterested(tID);
+
+                })
+                .error(function(data, status, headers, config) {
+                    var alertPopup = $ionicPopup.alert({
+                        title: 'Mistyped information'
+                    });
                 });
-                //remove from user feed immediately
-                $scope.notInterested(tID);
 
-            })
-            .error(function(data, status, headers, config){
-              var alertPopup = $ionicPopup.alert({
-                title: 'Mistyped information'
-              });
+        });
+
+
+    }
+
+    openFB.getLoginStatus(function(loginStatus) {
+        if (loginStatus.status !== 'connected') {
+            $location.path('/login');
+        } else {
+            openFB.api({
+                path: '/me',
+                success: function(user) {
+                    UserAPI.new(user.id, user.name, user.email)
+                        .success(function(data, headers, config, status) {
+                            $scope.$parent.$parent.$parent.isLoading = false;
+                            $scope.user = user;
+                            $scope.getFeed();
+                            $scope.$parent.$parent.$parent.user = $scope.user;
+                        })
+                        .error(function(data, headers, config, status) {
+                            $location.path('/login');
+                        })
+                },
+                error: function() {
+                    $location.path('/login');
+                }
             });
-
-          });
-
-
-  }
-  
-	openFB.getLoginStatus(function(loginStatus){
-    if (loginStatus.status !== 'connected'){
-      $location.path('/login');
-    }
-    else {
-      openFB.api({
-        path: '/me',
-        success: function(user) {
-          UserAPI.new(user.id, user.name, user.email)
-            .success(function(data, headers, config, status){
-                $scope.$parent.$parent.$parent.isLoading = false;
-                $scope.user = user;
-								$scope.getFeed();
-  							$scope.$parent.$parent.$parent.user = $scope.user;
-            })
-            .error(function(data, headers, config, status){
-              $location.path('/login');
-            })
-        },
-        error: function(){
-          $location.path('/login');
         }
-      });
-    }
-  })
+    })
 
-  $scope.getFeed = function(){
-    GigAPI.all($scope.user.id).success(function(data, status, headers, config){
-			console.log(data);
-			$scope.feed = data;
-      $scope.$broadcast('scroll.refreshComplete');
-    });
-  }
+    $scope.getFeed = function() {
+        GigAPI.all($scope.user.id).success(function(data, status, headers, config) {
+            console.log(data);
+            $scope.feed = data;
+            $scope.$broadcast('scroll.refreshComplete');
+        });
+    }
 })
 
 .controller('NewGigCtrl', function($scope, $location, $ionicPopup, GigAPI){
@@ -197,61 +189,61 @@ angular.module('lookin4.controllers', [])
   $scope.postGig = function(){
     GigAPI.new($scope.$parent.$parent.$parent.user.id, $scope.$parent.$parent.$parent.user.name, $scope.currentNewGig.date, $scope.currentNewGig.position, $scope.currentNewGig.rate, $scope.currentNewGig.description)
     .success(function(data, status, headers, config){
-	  	var alertPopup = $ionicPopup.alert({
-     		title: 'Your gig has been posted'
-   		});
-   		alertPopup.then();
+      var alertPopup = $ionicPopup.alert({
+        title: 'Your gig has been posted'
+      });
+      alertPopup.then();
       $location.path('/app/search');
     })
-		.error(function(data, status, headers, config){
-			var alertPopup = $ionicPopup.alert({
-     		title: 'Not enough parameters'
-   		});
-   		alertPopup.then();
-		});
+    .error(function(data, status, headers, config){
+      var alertPopup = $ionicPopup.alert({
+        title: 'Not enough parameters'
+      });
+      alertPopup.then();
+    });
   }
 })
 
 .controller('ProfileCtrl', function($scope, $location, $ionicPopup, UserAPI){
   $scope.user = $scope.$parent.user;
-	if (!$scope.user.caption){
-		$scope.user.caption = "";
-	}
-	if (!$scope.user.phone){
-		$scope.user.phone = "";
-	}
+  if (!$scope.user.caption){
+    $scope.user.caption = "";
+  }
+  if (!$scope.user.phone){
+    $scope.user.phone = "";
+  }
   $scope.updateProfile = function(){
-		console.log($scope.user.caption);
+    console.log($scope.user.caption);
     UserAPI.update($scope.user.id, $scope.user.phone, $scope.user.caption)
       .success(function(data, status, headers, config){
-					var alertPopup = $ionicPopup.alert({
-     				title: 'Your profile has been updated'
-   				});
-   				alertPopup.then();
+          var alertPopup = $ionicPopup.alert({
+            title: 'Your profile has been updated'
+          });
+          alertPopup.then();
       })
-			.error(function(data, status, headers, config){
-				var alertPopup = $ionicPopup.alert({
-     			title: 'Mistyped information'
-   			});
-   			alertPopup.then();
-			});
+      .error(function(data, status, headers, config){
+        var alertPopup = $ionicPopup.alert({
+          title: 'Mistyped information'
+        });
+        alertPopup.then();
+      });
   }
 })
 
 .controller('MyGigsCtrl', function($scope, $location, GigAPI){
   $scope.getPersonal = function(){
-		GigAPI.personal($scope.$parent.$parent.$parent.user.id)
+    GigAPI.personal($scope.$parent.$parent.$parent.user.id)
     .success(function(data, headers, config, status){
       $scope.personal = data;
       $scope.$broadcast('scroll.refreshComplete');
     })
-	}
+  }
   $scope.findInterested = function(id, len){
     if (len > 0){
       $location.path("/app/interested").search("id", id);
     }
   }
-	$scope.getPersonal();
+  $scope.getPersonal();
 })
 
 .controller('InterestedCtrl', function($scope, $location, GigAPI){
