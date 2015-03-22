@@ -50,6 +50,7 @@ var userSchema = new Schema({
   name: {type: String, required: true},
   email: {type: String, required: true},
   phone: {type: Number},
+  deviceToken: {type: String},
   caption: {type: String}
 }, {versionKey: false});
 
@@ -98,6 +99,19 @@ app.post('/api/users/update', function(req, res){
   var postPhone = req.body.phone;
   var postID = req.body.userID;
   User.update({userid: postID}, {caption: postCaption, phone: postPhone}, {}, function(err, numUpdated){
+    if (err){
+      console.log(err);
+      res.status(400).send("Fail");
+      return;
+    }
+    res.status(200).send("Success");
+  });
+});
+
+app.post('/api/users/updateToken', function(req, res){
+  var postDeviceToken = req.body.deviceToken;
+  var postID = req.body.userID;
+  User.update({userid: postID}, {deviceToken: postDeviceToken}, {}, function(err, numUpdated){
     if (err){
       console.log(err);
       res.status(400).send("Fail");
