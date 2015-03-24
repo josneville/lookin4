@@ -105,7 +105,7 @@ angular.module('lookin4.factory', [])
                 }
             })
         },
-        all: function(userID) {
+        allfeed: function(userID) {
             return $http({
                 url: base + "/allfeed",
                 method: "POST",
